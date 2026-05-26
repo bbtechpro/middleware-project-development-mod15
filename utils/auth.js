@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
  
 const secret = process.env.JWT_SECRET;
-const expiration = '2h';
+const expiration = process.env.JWT_EXPIRES_IN || '1h';
  
 module.exports = {
   authMiddleware: function (req, res, next) {
@@ -16,7 +16,19 @@ module.exports = {
     }
  
     try {
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
+      if (!secret) {
+        return res.status(500).json({ message: 'JWT_SECRET is not configured.' });
+      }
+
+      const decoded = jwt.verify(token, secret, { maxAge: expiration });
+      // Backward compatible: accept both token shapes:
+      // 1) { data: { username, email, _id } } (preferred)
+      // 2) { id, username, ... } (older payload)
+      const data = decoded?.data ?? decoded;
+
+      // Normalize _id field across payload shapes
+      if (data && data.id && !data._id) data._id = data.id;
+
       req.user = data;
     } catch {
       console.log('Invalid token');
