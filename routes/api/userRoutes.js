@@ -19,20 +19,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET a specific user by ID from MongoDB
-router.get('/:id', async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-        return res.status(200).json({ success: true, data: user });
-    } catch (err) {
-        console.error('Error fetching user by ID:', err);
-        return res.status(500).json({ success: false, message: 'Error fetching user' });
-    }
-});
-
 // POST create a new user in MongoDB
 router.post('/', async (req, res) => {
     try {
@@ -58,6 +44,20 @@ router.post('/', async (req, res) => {
     }
 });
 
+// GET a specific user by ID from MongoDB
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        return res.status(200).json({ success: true, data: user });
+    } catch (err) {
+        console.error('Error fetching user by ID:', err);
+        return res.status(500).json({ success: false, message: 'Error fetching user' });
+    }
+});
+
 // PUT update an entire user resource in MongoDB
 router.put('/:id', async (req, res) => {
     try {
@@ -72,6 +72,7 @@ router.put('/:id', async (req, res) => {
         return res.status(500).json({ success: false, message: 'Error updating user' });
     }
 });
+
 
 // DELETE remove a user from MongoDB
 router.delete('/:id', async (req, res) => {
