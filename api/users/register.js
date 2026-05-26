@@ -6,17 +6,20 @@ const User = require('../../models/userSchema');
 router.post('/', async (req, res) => {
     try {
         const body = req.body || {};
-        console.log('Register route hit:', req.method, req.originalUrl, 'content-type=', req.headers['content-type'], 'body=', body);
-        const username = body.username || body.Username || body.userName;
-        const email = body.email || body.Email;
-        const password = body.password || body.Password;
+        const query = req.query || {};
+        const combinedData = { ...query, ...body };
+        
+        console.log('Register route hit:', req.method, req.originalUrl, 'content-type=', req.headers['content-type'], 'body=', body, 'query=', query, 'combined=', combinedData);
+        const username = combinedData.username || combinedData.Username || combinedData.userName;
+        const email = (combinedData.email || combinedData.Email || '').toLowerCase().trim();
+        const password = combinedData.password || combinedData.Password;
 
         if (!username || !email || !password) {
             return res.status(400).json({ 
                 message: 'Username, email and password are required.',
-                receivedKeys: Object.keys(body),
+                receivedKeys: Object.keys(combinedData),
                 expectedKeys: ['username', 'email', 'password'],
-                note: 'Send raw JSON with Content-Type: application/json, or use x-www-form-urlencoded if not raw JSON.'
+                note: 'Send as JSON body with Content-Type: application/json, or as query parameters'
             });
         }
 
