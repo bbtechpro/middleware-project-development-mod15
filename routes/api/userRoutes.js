@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const registerRouter = require('../api/users/register');
-const loginRouter = require('../api/users/login');
-const User = require('../models/userSchema');
+const registerRouter = require('../../api/users/register');
+const loginRouter = require('../../api/users/login');
+const User = require('../../models/userSchema');
 
 // Mount register and login routes early to avoid /:id conflicts
 router.use('/register', registerRouter);
