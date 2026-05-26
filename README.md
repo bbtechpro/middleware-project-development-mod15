@@ -63,3 +63,7 @@ Ensure your application runs without errors.
 Test every endpoint thoroughly using an API client like Insomnia or Postman. Pay special attention to the security rules:
 Try to access protected routes without a token.
 Log in as User A and attempt to access data owned by User B. All such attempts should be rejected with a 403 Forbidden or similar status.
+
+- API-Smoke-Test: Initializes environment configurations by defining a base URL, a standardized password, and generating randomized unique identifiers for testing inputs.Registers and logs in two separate test users to obtain unique JWT authentication tokens needed for isolation checks.Validates authorization gates by verifying that requests to protected routes without a valid token are rejected with a 401 Unauthorized status.Verifies core CRUD operations to ensure that authorized users can successfully create, read, update, and delete their own projects and tasks.Enforces multi-tenant data isolation by confirming that any cross-user access attempts to view or alter another user's data are blocked with a 403 Forbidden status.
+-- I compiled the api-smoke-tests into api.test.js and installed dependencies with npm i --sav-dev jest and ran the automated tests.
+- All tests passed, as shown in this screenshot: [](Jest_Test_Results.jpg)
