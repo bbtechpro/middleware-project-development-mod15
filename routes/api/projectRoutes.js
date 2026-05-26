@@ -23,7 +23,7 @@ router.get('/:id', async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: 'No project found with this id!' });
     }
-    if (project.user.toString() !== req.user._id) {
+    if (project.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'User is not authorized to view this project.' });
     }
     res.json(project);
@@ -35,36 +35,48 @@ router.get('/:id', async (req, res) => {
 // POST /api/projects - Create a new project
 router.post('/', async (req, res) => {
   try {
+    const { name, description } = req.body || {};
+
+    if (!name || !description) {
+      return res.status(400).json({ message: 'Please provide name and description.' });
+    }
+
     const project = await Project.create({
-      ...req.body,
-    
-//  When a new project is created, you must associate it with the currently logged-in user. The authenticated user’s data should be available on req.user from the authentication middleware. Save the user’s _id to the new project’s user field.
-
-    user: req.user._id
-
+      name,
+      description,
+      user: req.user._id,
     });
-    res.status(201).json(note);
+
+    return res.status(201).json(project);
   } catch (err) {
-    res.status(400).json(err);
+    return res.status(400).json({ message: 'Error creating project', error: err.message });
   }
 });
  
 // PUT /api/projects/:id - Update a project
 router.put('/:id', async (req, res) => {
   try {
-    // find the project by its ID
-    const project = await Note.findById(req.params.id);  
+    const project = await Project.findById(req.params.id);
     if (!project) {
-      return res.status(404).json({ message: 'No note found with this id!' });
+      return res.status(404).json({ message: 'No project found with this id!' });
     }
-    // Check if the user is authorized to update this note
-    if (project.user.toString() !== req.user._id) {
-      return res.status(403).json({ message: 'User is not authorized to update this note.' });
+
+    if (project.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'User is not authorized to update this project.' });
     }
-    const updatedProject = await Note.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
-    res.json(updatedProject);
+
+    const updates = {};
+    if (req.body && req.body.name !== undefined) updates.name = req.body.name;
+    if (req.body && req.body.description !== undefined) updates.description = req.body.description;
+
+    const updatedProject = await Project.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    return res.json(updatedProject);
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json({ message: 'Error updating project', error: err.message });
   }
 });
  
@@ -78,19 +90,19 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     // find the project by its ID
-    const project = await Note.findById(req.params.id);
+    const project = await Project.findById(req.params.id);
 
     // Check if the user is authorized to delete this project
     if (!project) {
       return res.status(404).json({ message: 'No project found with this id!' });
     }
-    if (project.user.toString() !== req.user._id) {
+    if (project.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'User is not authorized to delete this project.' });
     }
-    await Note.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Project deleted!' });
+    await Project.findByIdAndDelete(req.params.id);
+    return res.json({ message: 'Project deleted!' });
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json({ message: 'Error deleting project', error: err.message });
   }
 });
  
