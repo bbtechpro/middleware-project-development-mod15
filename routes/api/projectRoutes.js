@@ -70,7 +70,7 @@ router.put('/:id', async (req, res) => {
     if (req.body && req.body.description !== undefined) updates.description = req.body.description;
 
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 

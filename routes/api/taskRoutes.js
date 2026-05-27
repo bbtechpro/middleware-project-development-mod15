@@ -73,7 +73,7 @@ router.put('/tasks/:taskId', authMiddleware, async (req, res) => {
     }
 
     const updatedTask = await Task.findByIdAndUpdate(req.params.taskId, req.body, {
-      new: true,
+      returnDocument: 'after',
     });
 
     res.json(updatedTask);
